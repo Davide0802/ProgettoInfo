@@ -1,0 +1,75 @@
+PERSONE DEL GRUPPO:
+
+Eric Bejanaru ( PM )
+Main + gestione partita
+Davide De Din
+Scacchiera
+Gabriele Londero
+Regole
+
+
+
+CONSEGNA:
+Sviluppare in Java un programma che permetta di giocare una partita a Othello in Java. Il programma mostra di volta in volta la scacchiera con le pedine aggiornate in base al turno di gioco. Il computer gestisce i turni, verifica la validit� delle mosse, segnala quando un giocatore deve passare e stabilisce il vincitore a fine partita.
+Il programma funziona in due modalit�:
+
+1. Giocatore contro giocatore: a turno il computer chiama il giocatore che deve muovere. Prima di passare la mano, verifica che l'avversario abbia mosse legali. In caso contrario avvisa il giocatore e gli fa giocare di nuovo.
+2. Giocatore contro computer: il programma chiede all'utente se vuole iniziare e poi sceglie di volta in volta la mossa migliore, cio� quella che conquista pi� pedine.
+L'applicazione ha un'interfaccia testuale. La scacchiera � disegnata con caratteri ASCII per i bordi (ad esempio +, -, |).
+REGOLE OTHELLO:
+1. L'obiettivo del gioco
+Alla fine della partita vince chi ha pi� pedine del proprio colore sulla scacchiera.
+
+2. L'inizio della partita
+ Si gioca in due su una scacchiera 8x8 con 64 pedine bicolori. Il Nero (O) inizia il gioco, il Bianco (X) � l'avversario. La disposizione iniziale prevede quattro pedine al centro: X in D4 ed E5, O in E4 e D5.
+3. Come si muove
+ Al suo turno ogni giocatore poggia una pedina del proprio colore su una casella vuota. La mossa � valida solo se imprigiona almeno una pedina avversaria.
+4. Cattura (imprigionamento) delle pedine
+ Una pedina imprigiona quelle avversarie comprese tra s� e un'altra pedina del proprio colore, in una o pi� direzioni: orizzontale, verticale e diagonale. Le pedine imprigionate vengono capovolte e diventano del colore di chi ha mosso.
+5. Obbligo di muovere e passo
+Il giocatore non pu� mettere una pedina senza girarne di avversarie, non pu� girarne
+
+
+meno di quelle richieste e non pu� rinunciare alla mossa. Se non ha mosse legali, passa il turno e tocca di nuovo all'avversario.
+6. Fine della partita
+ La partita termina quando entrambi i giocatori non hanno pi� mosse legali, in genere a scacchiera piena. Pu� finire prima se tutte le pedine diventano di un solo colore o se nessuno dei due pu� muovere pur essendoci caselle vuote. Vince chi ha pi� pedine. Se il numero � uguale, la partita � pari.
+
+
+METODI :
+
+
+1. METODI ERIC:
+- avviaPartita() :fa avviare la partita con un menu
+- scegliModalita() : opzione del menu iniziale ( giocatore vs giocatore o giocatore vs computer)
+- gestisciTurno() : gestisce turno tra giocatore e giocatore o giocatore e computer
+- chiediMossa() : chiede le coordinate in input al giocatore per l'inserimento della pedina
+- determinaVincitore() : stabilisce il vincitore
+- stampaRisultato() :stampa il messaggio di chi ha vinto
+
+
+
+2. METODI DAVIDE:
+- inizializzaScacchiera() : inizializza la scacchiera
+- stampaScacchiera() : stampa la scacchiera
+- posizionaPedina(int riga, int colonna, char colore) : posiziona la pedina inserita dall'utente nella funzione ( chiediMossa() )
+- eseguiMossa() : esegue la mossa
+
+
+
+
+
+
+
+
+
+3. METODI GABRIELE:
+
+
+- controllaMossa(int riga, int colonna, char colore) : controlla se la posizione � valida
+- gestisciTurnoPC(char colorePC) : sceglie la mossa migliore per il computer (quella che gira pi� pedine).
+- mosseDisponibili(char colore) : restituisce tutte le mosse legali del giocatore/PC.
+- valutaMossa(int riga, int colonna, char colore) : conta quante pedine verrebbero girate: usato dal PC per scegliere la mossa migliore.
+
+
+
+
