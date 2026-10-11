@@ -1,4 +1,6 @@
 public class Othello {
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
+//metodi eric
     public static void main(String[] args){
         int righe_griglia = 8; 
         int colonne_griglia = 8; 
@@ -7,6 +9,27 @@ public class Othello {
         StampaScacchiera(griglia, righe_griglia, colonne_griglia);
     }
 
+    static void avviaPartita(){
+
+    }
+    static void scegliModalita(){
+
+    }
+    static void gestisciTurno(){
+
+    }
+    static void chiediMossa(){
+
+    }
+    static void determinaVincitore(){
+
+    }
+    static void stampaRisultato(){
+
+    }
+
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    //metodi davide
     static void InizializzaScacchiera(char[][] griglia, int righe, int colonne){
         for(int i = 0; i < righe; i++){
             for(int j = 0; j < colonne; j++){
@@ -36,5 +59,31 @@ public class Othello {
             System.out.println();
         }
         System.out.println("+---+---+---+---+---+---+---+---+");
+    }
+
+    static  void posizionaPedina(int riga, int colonna, char colore){
+
+    }
+
+    static void eseguiMossa(){
+
+    }
+    
+/*-------------------------------------------------------------------------------------------------------------------------------*/
+    //metodi gabriele
+    static void controllaMossa(int riga, int colonna, char colore){
+
+    }
+
+    static void gestisciTurnoPC(char colorePC){
+
+    }
+
+    static void mosseDisponibili(char colore){
+
+    }
+
+    static void valutaMossa(int riga, int colonna, char colore){
+
     }
 }

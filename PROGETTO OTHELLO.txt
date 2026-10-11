@@ -36,8 +36,6 @@ meno di quelle richieste e non pu� rinunciare alla mossa. Se non ha mosse lega
 
 
 METODI :
-
-
 1. METODI ERIC:
 - avviaPartita() :fa avviare la partita con un menu
 - scegliModalita() : opzione del menu iniziale ( giocatore vs giocatore o giocatore vs computer)
@@ -46,25 +44,13 @@ METODI :
 - determinaVincitore() : stabilisce il vincitore
 - stampaRisultato() :stampa il messaggio di chi ha vinto
 
-
-
 2. METODI DAVIDE:
 - inizializzaScacchiera() : inizializza la scacchiera
 - stampaScacchiera() : stampa la scacchiera
 - posizionaPedina(int riga, int colonna, char colore) : posiziona la pedina inserita dall'utente nella funzione ( chiediMossa() )
 - eseguiMossa() : esegue la mossa
 
-
-
-
-
-
-
-
-
 3. METODI GABRIELE:
-
-
 - controllaMossa(int riga, int colonna, char colore) : controlla se la posizione � valida
 - gestisciTurnoPC(char colorePC) : sceglie la mossa migliore per il computer (quella che gira pi� pedine).
 - mosseDisponibili(char colore) : restituisce tutte le mosse legali del giocatore/PC.
