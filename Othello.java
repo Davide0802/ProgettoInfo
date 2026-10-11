@@ -2,6 +2,8 @@ public class Othello {
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
 //metodi eric
     public static void main(String[] args){
+        char colore_giocatore;
+        char colorePC;
         int righe_griglia = 8; 
         int colonne_griglia = 8; 
         char[][] griglia = new char[righe_griglia][colonne_griglia]; 
@@ -68,22 +70,28 @@ public class Othello {
     static void eseguiMossa(){
 
     }
-    
+
 /*-------------------------------------------------------------------------------------------------------------------------------*/
     //metodi gabriele
-    static void controllaMossa(int riga, int colonna, char colore){
-
+    static boolean controllaMossa(int[][] matrice, int riga, int colonna, char colore){
+        //controlla se la posizione e' valida
+        if(matrice[riga][colonna] == ' '){
+            return true;
+        }else{
+            return false;
+        }
     }
 
-    static void gestisciTurnoPC(char colorePC){
+    static int valutaMossa(int riga, int colonna, char colorePC){
+        //conta quante pedine verrebbero girate: usato dal PC per scegliere la mossa migliore
+    }
 
+    static int gestisciTurnoPC(int[][] matrice, int riga, int colonna, char colorePC){
+        //sceglie la mossa migliore per il computer (quella che gira piu' pedine)
+        int pedineGirate = valutaMossa(riga, colonna, colorePC);
     }
 
     static void mosseDisponibili(char colore){
-
-    }
-
-    static void valutaMossa(int riga, int colonna, char colore){
-
+        //restituisce tutte le mosse legali del giocatore/PC
     }
 }
