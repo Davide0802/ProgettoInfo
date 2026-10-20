@@ -103,10 +103,66 @@ public class Othello {
 	}
         
     static void scegliModalita(){
+		char[][] griglia = new char[8][8];
+		InizializzaScacchiera(griglia, 8, 8);
 
+		gestisciTurno(griglia, scelta);
     }
-    static void gestisciTurno(){
 
+	static boolean finePartita(char[][] griglia){
+		for(int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
+				if(griglia[i][j] == ' '){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+		
+    static void gestisciTurno(){
+		int[] mossa = new int[2];
+
+		String giocatoreA = "Giocatore A";
+		String giocatoreB = "Giocatore B";
+
+		char bianco = 'O';
+		char nero = 'X';
+
+		String turno = giocatoreA;
+
+		while (true) {
+
+			StampaScacchiera(griglia, 8, 8);
+			System.out.println("Turno di: " + turno);
+
+			char coloreTurno;
+			if(turno.equals(giocatoreA)){
+				coloreTurno = bianco;
+			} else {
+				coloreTurno = nero;
+			}
+
+			if (modalita == 2 && turno.equals(giocatoreB)) {
+				int r = (int)(Math.random() * 8);
+				int c = (int)(Math.random() * 8);
+				posizionaPedina(r, c, coloreTurno);
+			} else {
+				chiediMossa(mossa);
+				posizionaPedina(mossa[0], mossa[1], coloreTurno);
+			}
+
+			if (turno.equals(giocatoreA)) {
+				turno = giocatoreB;
+			} else {
+				turno = giocatoreA;
+			}
+
+			if (finePartita(griglia)) {
+				determinaVincitore(griglia);
+				return;
+			}
+		}
     }
     static void chiediMossa(){
 		int r, c;
@@ -125,10 +181,30 @@ public class Othello {
 		mossa[1] = c;
     }
     static void determinaVincitore(){
+		int contX = 0;
+		int contO = 0;
 
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (griglia[i][j] == 'X') {
+					contX++;
+				}
+				if (griglia[i][j] == 'O') {
+					contO++;
+				}
+			}
+		}
+
+		stampaRisultato(contX, contO);
     }
     static void stampaRisultato(){
-
+			if (x > o) {
+			System.out.println("Vince il Giocatore 1 (X) ");
+		} else if (o > x) {
+			System.out.println("Vince il Giocatore 2 (O)");
+		} else {
+			System.out.println("Non ha vinto nessuno, c'è un pareggio!");
+		}
     }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
