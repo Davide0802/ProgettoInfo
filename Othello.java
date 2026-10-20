@@ -26,27 +26,22 @@ public class Othello {
 		int scelta = Leggi.unInt();
 
 		switch (scelta) {
-		case 1:
-			scegliModalita(1);
-			break;
+			case 1 -> scegliModalita(1);
 
-		case 2:
-			scegliModalita(2);
-			break;
-			
-		case 3:
-			mostraRegole();
-            avviaPartita();
-			break;
+			case 2 -> scegliModalita(2);
+				
+			case 3 -> {
+						mostraRegole();
+						avviaPartita();
+				}
 
-		case 4:
-			System.out.println("Grazie per aver giocato al nostro gioco");
-			break;
+			case 4 -> System.out.println("Grazie per aver giocato al nostro gioco");
 
-		default:
-			System.out.println("Scelta non valida");
-			avviaPartita();
-		    break;
+			default -> {
+						System.out.println("Scelta non valida");
+						avviaPartita();
+				}
+		}
 	}
 
     static void mostraRegole(){
@@ -106,7 +101,7 @@ public class Othello {
 		char[][] griglia = new char[8][8];
 		InizializzaScacchiera(griglia, 8, 8);
 
-		gestisciTurno(griglia, scelta);
+		gestisciTurno(griglia, scelta, 8, 8);
     }
 
 	static boolean finePartita(char[][] griglia){
@@ -133,7 +128,7 @@ public class Othello {
 
 		while (true) {
 
-			StampaScacchiera(griglia, 8, 8);
+			StampaScacchiera(griglia, righe, colonne);
 			System.out.println("Turno di: " + turno);
 
 			char coloreTurno;
@@ -144,9 +139,9 @@ public class Othello {
 			}
 
 			if (modalita == 2 && turno.equals(giocatoreB)) {
-				int righe = (int)(Math.random() * 8);
-				int colonne = (int)(Math.random() * 8);
-				posizionaPedina(r, c, coloreTurno);
+				righe = (int)(Math.random() * 8);
+				colonne = (int)(Math.random() * 8);
+				posizionaPedina(righe, colonne, coloreTurno);
 
 			} else {
 				chiediMossa(mossa);
@@ -165,6 +160,7 @@ public class Othello {
 			}
 		}
     }
+
     static void chiediMossa(int[] mossa){
 		int righe, colonne;
 
@@ -181,6 +177,7 @@ public class Othello {
 		mossa[0] = righe;
 		mossa[1] = colonne;
     }
+
     static void determinaVincitore(char[][] griglia){
 		int contX = 0;
 		int contO = 0;
@@ -198,6 +195,7 @@ public class Othello {
 
 		stampaRisultato(contX, contO);
     }
+	
     static void stampaRisultato(int x , int o){
 			if (x > o) {
 			System.out.println("Vince il Giocatore 1 (X) ");
@@ -251,7 +249,8 @@ public class Othello {
 
 /*-------------------------------------------------------------------------------------------------------------------------------*/
     //metodi gabriele
-    static boolean controllaMossa(int[][] matrice, int riga, int colonna, char colore){
+	//metto tutto in commento se no da errore scusa londi
+    /*static boolean controllaMossa(int[][] matrice, int riga, int colonna, char colore){
         //controlla se la posizione e' valida
         if(matrice[riga][colonna] == ' '){
             return true;
@@ -271,5 +270,5 @@ public class Othello {
 
     static void mosseDisponibili(char colore){
         //restituisce tutte le mosse legali del giocatore/PC
-    }
+    }*/
 }
