@@ -102,7 +102,7 @@ public class Othello {
 	    Leggi.unoString();
 	}
         
-    static void scegliModalita(){
+    static void scegliModalita(int scelta){
 		char[][] griglia = new char[8][8];
 		InizializzaScacchiera(griglia, 8, 8);
 
@@ -120,7 +120,7 @@ public class Othello {
 		return true;
 	}
 		
-    static void gestisciTurno(){
+    static void gestisciTurno(char[][] griglia, int modalita, int righe , int colonne ){
 		int[] mossa = new int[2];
 
 		String giocatoreA = "Giocatore A";
@@ -144,9 +144,10 @@ public class Othello {
 			}
 
 			if (modalita == 2 && turno.equals(giocatoreB)) {
-				int r = (int)(Math.random() * 8);
-				int c = (int)(Math.random() * 8);
+				int righe = (int)(Math.random() * 8);
+				int colonne = (int)(Math.random() * 8);
 				posizionaPedina(r, c, coloreTurno);
+
 			} else {
 				chiediMossa(mossa);
 				posizionaPedina(mossa[0], mossa[1], coloreTurno);
@@ -164,23 +165,23 @@ public class Othello {
 			}
 		}
     }
-    static void chiediMossa(){
-		int r, c;
+    static void chiediMossa(int[] mossa){
+		int righe, colonne;
 
 		do {
 			System.out.print("Inserisci un valore per la riga da 0 a 7: ");
-			r = Leggi.unInt();
-		} while (r < 0 || r > 7);
+			righe = Leggi.unInt();
+		} while (righe < 0 || righe > 7);
 
 		do {
 			System.out.print("Inserisci un valore per la colonna da 0 a 7: ");
-			c = Leggi.unInt();
-		} while (c < 0 || c > 7);
+			colonne = Leggi.unInt();
+		} while (colonne < 0 || colonne > 7);
 
-		mossa[0] = r;
-		mossa[1] = c;
+		mossa[0] = righe;
+		mossa[1] = colonne;
     }
-    static void determinaVincitore(){
+    static void determinaVincitore(char[][] griglia){
 		int contX = 0;
 		int contO = 0;
 
@@ -197,7 +198,7 @@ public class Othello {
 
 		stampaRisultato(contX, contO);
     }
-    static void stampaRisultato(){
+    static void stampaRisultato(int x , int o){
 			if (x > o) {
 			System.out.println("Vince il Giocatore 1 (X) ");
 		} else if (o > x) {
