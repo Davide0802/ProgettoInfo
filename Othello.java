@@ -9,11 +9,99 @@ public class Othello {
         char[][] griglia = new char[righe_griglia][colonne_griglia]; 
         InizializzaScacchiera(griglia, righe_griglia, colonne_griglia);
         StampaScacchiera(griglia, righe_griglia, colonne_griglia);
+
+        avviaPartita();
     }
 
     static void avviaPartita(){
 
-    }
+		System.out.println("Menu di gioco Othello");
+		System.out.println("Scegli tra la seguenti opzioni (1/2/3) :");
+		System.out.println("1. Giocatore vs Giocatore");
+		System.out.println("2. Giocatore vs Computer");
+		System.out.println("3. Regole");
+		System.out.println("4. Esci");
+		System.out.print("Scegli modalità: ");
+
+		int scelta = Leggi.unInt();
+
+		switch (scelta) {
+		case 1:
+			scegliModalita(1);
+			break;
+
+		case 2:
+			scegliModalita(2);
+			break;
+			
+		case 3:
+			mostraRegole();
+            avviaPartita();
+			break;
+
+		case 4:
+			System.out.println("Grazie per aver giocato al nostro gioco");
+			break;
+
+		default:
+			System.out.println("Scelta non valida");
+			avviaPartita();
+		    break;
+	}
+
+    static void mostraRegole(){
+
+	    System.out.println("REGOLE OTHELLO");
+	    
+	    System.out.println("Premi invio per vedere la 1 regola ");
+	    Leggi.unoString();
+
+	    System.out.println("1.L'obiettivo del gioco");
+	    System.out.println("Vince chi ha più pedine del proprio colore sulla scacchiera alla fine della partita.\n");
+	    
+	    System.out.println("Premi invio per vedere la 2 regola ");
+	    Leggi.unoString();
+	    
+	    System.out.println("2. Inizio della partita");
+	    System.out.println("Si gioca su una scacchiera 8x8.");
+	    System.out.println("Nero (O) inizia, Bianco (X) è l'avversario.");
+	    System.out.println("Disposizione iniziale:");
+	    System.out.println("X in D4 ed E5, O in E4 e D5.\n");
+	    
+	    System.out.println("Premi invio per vedere la 3 regola ");
+	    Leggi.unoString();
+	    
+	    System.out.println("3. Come si muove");
+	    System.out.println("Ogni giocatore piazza una pedina del proprio colore su una casella vuota.");
+	    System.out.println("La mossa è valida solo se imprigiona almeno una pedina avversaria.\n");
+	    
+	    System.out.println("Premi invio per vedere la 4 regola ");
+	    Leggi.unoString();
+	    
+	    System.out.println("4. Cattura delle pedine");
+	    System.out.println("Una pedina imprigiona quelle avversarie comprese tra sé e un'altra pedina dello stesso colore.");
+	    System.out.println("Le direzioni possibili sono: orizzontale, verticale e diagonale.");
+	    System.out.println("Le pedine imprigionate vengono capovolte e diventano del colore di chi ha mosso.\n");
+	    
+	    System.out.println("Premi invio per vedere la 5 regola ");
+	    Leggi.unoString();
+	    
+	    System.out.println("5. Obbligo di muovere e passo");
+	    System.out.println("Non si può piazzare una pedina senza girare almeno una avversaria.");
+	    System.out.println("Se non ci sono mosse legali, il giocatore passa il turno.\n");
+	    
+	    System.out.println("Premi invio per vedere la 6 regola ");
+	    Leggi.unoString();
+	    
+	    System.out.println("6. Fine della partita");
+	    System.out.println("La partita termina quando nessuno dei due giocatori ha mosse legali.");
+	    System.out.println("Vince chi ha più pedine del proprio colore.");
+	    System.out.println("Se il numero è uguale, la partita è pari.\n");
+
+	    System.out.println("Premi invio per tornare al menu...");
+	    Leggi.unoString();
+	}
+        
     static void scegliModalita(){
 
     }
