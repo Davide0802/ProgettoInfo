@@ -109,7 +109,20 @@ public class Othello {
 
     }
     static void chiediMossa(){
+		int r, c;
 
+		do {
+			System.out.print("Inserisci un valore per la riga da 0 a 7: ");
+			r = Leggi.unInt();
+		} while (r < 0 || r > 7);
+
+		do {
+			System.out.print("Inserisci un valore per la colonna da 0 a 7: ");
+			c = Leggi.unInt();
+		} while (c < 0 || c > 7);
+
+		mossa[0] = r;
+		mossa[1] = c;
     }
     static void determinaVincitore(){
 
