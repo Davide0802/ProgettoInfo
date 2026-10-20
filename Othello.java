@@ -26,27 +26,29 @@ public class Othello {
 		int scelta = Leggi.unInt();
 
 		switch (scelta) {
-		case 1:
-			scegliModalita(1);
-			break;
+			case 1:
+				scegliModalita(1);
+				break;
+	
+			case 2:
+				scegliModalita(2);
+				break;
+				
+			case 3:
+				mostraRegole();
+	            avviaPartita();
+				break;
+	
+			case 4:
+				System.out.println("Grazie per aver giocato al nostro gioco");
+				break;
+	
+			default:
+				System.out.println("Scelta non valida");
+				avviaPartita();
+			    break;
+		}
 
-		case 2:
-			scegliModalita(2);
-			break;
-			
-		case 3:
-			mostraRegole();
-            avviaPartita();
-			break;
-
-		case 4:
-			System.out.println("Grazie per aver giocato al nostro gioco");
-			break;
-
-		default:
-			System.out.println("Scelta non valida");
-			avviaPartita();
-		    break;
 	}
 
     static void mostraRegole(){
