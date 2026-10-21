@@ -26,27 +26,17 @@ public class Othello {
 		int scelta = Leggi.unInt();
 
 		switch (scelta) {
-			case 1:
-				scegliModalita(1);
-				break;
-
-			case 2:
-				scegliModalita(2);
-				break;
-				
-			case 3:
+			case 1 -> scegliModalita(1);
+			case 2 -> scegliModalita(2);
+			case 3 -> {
 				mostraRegole();
 				avviaPartita();
-				break;
-
-			case 4:
-				System.out.println("Grazie per aver giocato al nostro gioco");
-				break;
-
-			default:
+			}
+			case 4 -> System.out.println("Grazie per aver giocato al nostro gioco");
+			default -> {
 				System.out.println("Scelta non valida");
 				avviaPartita();
-				break;
+			}
 		}
 	}
 
@@ -147,11 +137,11 @@ public class Othello {
 			if (modalita == 2 && turno.equals(giocatoreB)) {
 				righe = (int)(Math.random() * 8);
 				colonne = (int)(Math.random() * 8);
-				posizionaPedina(righe, colonne, coloreTurno);
+				posizionaPedina(griglia, righe, colonne, coloreTurno);
 
 			} else {
 				chiediMossa(mossa);
-				posizionaPedina(mossa[0], mossa[1], coloreTurno);
+				posizionaPedina(griglia, mossa[0], mossa[1], coloreTurno);
 			}
 
 			if (turno.equals(giocatoreA)) {
@@ -245,8 +235,13 @@ public class Othello {
         System.out.println("+---+---+---+---+---+---+---+---+");
     }
 
-    static  void posizionaPedina(int riga, int colonna, char colore){
-
+    static  void posizionaPedina(char[][] griglia, int riga, int colonna, char colore){
+		if(colore == 'X'){
+			griglia[riga][colonna] = 'O';
+		} else {
+			griglia[riga][colonna] = 'X';
+		}
+		
     }
 
     static void eseguiMossa(){
