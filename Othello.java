@@ -241,7 +241,6 @@ public class Othello {
 		} else {
 			griglia[riga][colonna] = 'X';
 		}
-		
     }
 
     static void eseguiMossa(){
