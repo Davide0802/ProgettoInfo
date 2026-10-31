@@ -1,11 +1,11 @@
 public class Othello {
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
 //metodi eric
+	static int righe_griglia = 8; 
+    static int colonne_griglia = 8; 
     public static void main(String[] args){
         char colore_giocatore;
         char colorePC;
-        int righe_griglia = 8; 
-        int colonne_griglia = 8; 
         char[][] griglia = new char[righe_griglia][colonne_griglia]; 
         InizializzaScacchiera(griglia, righe_griglia, colonne_griglia);
         StampaScacchiera(griglia, righe_griglia, colonne_griglia);
@@ -163,12 +163,12 @@ public class Othello {
 		do {
 			System.out.print("Inserisci un valore per la riga da 0 a 7: ");
 			righe = Leggi.unInt();
-		} while (righe < 0 || righe > 7);
+		} while (righe < 0 || righe > righe_griglia-1);
 
 		do {
 			System.out.print("Inserisci un valore per la colonna da 0 a 7: ");
 			colonne = Leggi.unInt();
-		} while (colonne < 0 || colonne > 7);
+		} while (colonne < 0 || colonne > colonne_griglia-1);
 
 		mossa[0] = righe;
 		mossa[1] = colonne;
@@ -249,26 +249,57 @@ public class Othello {
 
 /*-------------------------------------------------------------------------------------------------------------------------------*/
     //metodi gabriele
-	//metto tutto in commento se no da errore scusa londi
-    /*static boolean controllaMossa(int[][] matrice, int riga, int colonna, char colore){
-        //controlla se la posizione e' valida
-        if(matrice[riga][colonna] == ' '){
-            return true;
-        }else{
-            return false;
-        }
-    }
+    static boolean controllaMossa(int[][] matrice, int riga, int colonna, char colore){
+        //controllo validità della mossa da parte dell'utente
+		//controllo limiti delle coordinate della casella
+		if(riga < 0 || riga >= righe_griglia || colonna < 0 || colonna >= colonne_griglia){
+			return false;
+		}
+		//controllo che la casella sia vuota
+		if(matrice[riga][colonna] != ' '){
+			return false;
+		}
+		
+		//determino il colore dell'avversario
+		char coloreAvversario = (colore == 'X') ? 'O' : 'X';
+		//array delle direzioni da controllare attorno a ogni pedina
+		int direzioneRiga[] = {-1,-1,-1,0,0,1,1,1};
+		int direzioneColonna[] = {-1,-1,-1,0,0,1,1,1};
+		
+		for(int i = 0; i < righe_griglia; i++){
+			int r = riga + direzioneRiga[i];
+			int c = colonna + direzioneColonna[i];
+			int contaPedineAvversarie = 0;
 
+			while(r >= 0 && r < righe_griglia && c >= 0 && c < colonne_griglia && matrice[r][c] == coloreAvversario){
+				r += direzioneRiga[i];
+				c += direzioneColonna[i];
+			}
+
+			if(contaPedineAvversarie > 0 && r >= 0 && r < righe_griglia && c >= 0 && c < colonne_griglia){
+				return true;
+			}
+		}
+		return false;
+    }
+	/*
     static int valutaMossa(int riga, int colonna, char colorePC){
         //conta quante pedine verrebbero girate: usato dal PC per scegliere la mossa migliore
+		
     }
 
     static int gestisciTurnoPC(int[][] matrice, int riga, int colonna, char colorePC){
         //sceglie la mossa migliore per il computer (quella che gira piu' pedine)
         int pedineGirate = valutaMossa(riga, colonna, colorePC);
+		int max = pedineGirate;
+		//ciclo per determinare la mossa migliore per il PC
+
     }
 
     static void mosseDisponibili(char colore){
         //restituisce tutte le mosse legali del giocatore/PC
-    }*/
+		int[] mosse_valide = new int[100];
+		
+    }
+		*/
 }
