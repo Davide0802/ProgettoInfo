@@ -138,9 +138,10 @@ public class Othello {
 				righe = (int)(Math.random() * 8);
 				colonne = (int)(Math.random() * 8);
 				posizionaPedina(griglia, righe, colonne, coloreTurno);
-
 			} else {
-				chiediMossa(mossa);
+				do {
+					chiediMossa(mossa);
+				} while (!controllaMossa(griglia, mossa[0], mossa[1], coloreTurno));
 				posizionaPedina(griglia, mossa[0], mossa[1], coloreTurno);
 			}
 
@@ -193,7 +194,7 @@ public class Othello {
     }
 	
     static void stampaRisultato(int x , int o){
-			if (x > o) {
+		if (x > o) {
 			System.out.println("Vince il Giocatore 1 (X) ");
 		} else if (o > x) {
 			System.out.println("Vince il Giocatore 2 (O)");
@@ -235,7 +236,7 @@ public class Othello {
         System.out.println("+---+---+---+---+---+---+---+---+");
     }
 
-    static  void posizionaPedina(char[][] griglia, int riga, int colonna, char colore){
+    static void posizionaPedina(char[][] griglia, int riga, int colonna, char colore){
 		if(colore == 'X'){
 			griglia[riga][colonna] = 'O';
 		} else {
@@ -244,12 +245,12 @@ public class Othello {
     }
 
     static void eseguiMossa(){
-
+		
     }
 
 /*-------------------------------------------------------------------------------------------------------------------------------*/
     //metodi gabriele
-    static boolean controllaMossa(int[][] matrice, int riga, int colonna, char colore){
+    static boolean controllaMossa(char[][] matrice, int riga, int colonna, char colore){
         //controllo validità della mossa da parte dell'utente
 		//controllo limiti delle coordinate della casella
 		if(riga < 0 || riga >= righe_griglia || colonna < 0 || colonna >= colonne_griglia){
