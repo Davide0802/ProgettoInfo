@@ -1,26 +1,19 @@
 public class Othello {
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
 //metodi eric
-	static int righe_griglia = 8; 
-    static int colonne_griglia = 8; 
+	static int dimensione_griglia = 8;  
     public static void main(String[] args){
-        char colore_giocatore;
-        char colorePC;
-        char[][] griglia = new char[righe_griglia][colonne_griglia]; 
-        InizializzaScacchiera(griglia, righe_griglia, colonne_griglia);
-        StampaScacchiera(griglia, righe_griglia, colonne_griglia);
-
         avviaPartita();
     }
 
     static void avviaPartita(){
 
 		System.out.println("Menu di gioco Othello");
-		System.out.println("Scegli tra la seguenti opzioni (1/2/3) :");
+		System.out.println("Scegli tra la seguenti opzioni (1/2/3/0) :");
 		System.out.println("1. Giocatore vs Giocatore");
 		System.out.println("2. Giocatore vs Computer");
 		System.out.println("3. Regole");
-		System.out.println("4. Esci");
+		System.out.println("0. Esci");
 		System.out.print("Scegli modalità: ");
 
 		int scelta = Leggi.unInt();
@@ -32,7 +25,7 @@ public class Othello {
 				mostraRegole();
 				avviaPartita();
 			}
-			case 4 -> System.out.println("Grazie per aver giocato al nostro gioco");
+			case 0 -> System.out.println("Grazie per aver giocato al nostro gioco");
 			default -> {
 				System.out.println("Scelta non valida");
 				avviaPartita();
@@ -94,15 +87,15 @@ public class Othello {
 	}
         
     static void scegliModalita(int scelta){
-		char[][] griglia = new char[8][8];
-		InizializzaScacchiera(griglia, 8, 8);
+		char[][] griglia = new char[dimensione_griglia][dimensione_griglia];
+		InizializzaScacchiera(griglia);
 
-		gestisciTurno(griglia, scelta, 8, 8);
+		gestisciTurno(griglia, scelta);
     }
 
 	static boolean finePartita(char[][] griglia){
-		for(int i = 0; i < 8; i++){
-			for(int j = 0; j < 8; j++){
+		for(int i = 0; i < dimensione_griglia; i++){
+			for(int j = 0; j < dimensione_griglia; j++){
 				if(griglia[i][j] == ' '){
 					return false;
 				}
@@ -111,20 +104,21 @@ public class Othello {
 		return true;
 	}
 		
-    static void gestisciTurno(char[][] griglia, int modalita, int righe , int colonne ){
+    static void gestisciTurno(char[][] griglia, int modalita){
 		int[] mossa = new int[2];
-
+		int riga; 
+		int colonna; 
 		String giocatoreA = "Giocatore A";
 		String giocatoreB = "Giocatore B";
 
-		char bianco = 'O';
-		char nero = 'X';
+		char bianco = 'X';
+		char nero = 'O';
 
 		String turno = giocatoreA;
 
 		while (true) {
 
-			StampaScacchiera(griglia, righe, colonne);
+			StampaScacchiera(griglia);
 			System.out.println("Turno di: " + turno);
 
 			char coloreTurno;
@@ -135,9 +129,9 @@ public class Othello {
 			}
 
 			if (modalita == 2 && turno.equals(giocatoreB)) {
-				righe = (int)(Math.random() * 8);
-				colonne = (int)(Math.random() * 8);
-				posizionaPedina(griglia, righe, colonne, coloreTurno);
+				riga = (int)(Math.random() * dimensione_griglia);
+				colonna = (int)(Math.random() * dimensione_griglia);
+				posizionaPedina(griglia, riga, colonna, coloreTurno);
 			} else {
 				do {
 					chiediMossa(mossa);
@@ -164,12 +158,12 @@ public class Othello {
 		do {
 			System.out.print("Inserisci un valore per la riga da 0 a 7: ");
 			righe = Leggi.unInt();
-		} while (righe < 0 || righe > righe_griglia-1);
+		} while (righe < 0 || righe > dimensione_griglia-1);
 
 		do {
 			System.out.print("Inserisci un valore per la colonna da 0 a 7: ");
 			colonne = Leggi.unInt();
-		} while (colonne < 0 || colonne > colonne_griglia-1);
+		} while (colonne < 0 || colonne > dimensione_griglia-1);
 
 		mossa[0] = righe;
 		mossa[1] = colonne;
@@ -179,8 +173,8 @@ public class Othello {
 		int contX = 0;
 		int contO = 0;
 
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < dimensione_griglia; i++) {
+			for (int j = 0; j < dimensione_griglia; j++) {
 				if (griglia[i][j] == 'X') {
 					contX++;
 				}
@@ -205,9 +199,9 @@ public class Othello {
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
     //metodi davide
-    static void InizializzaScacchiera(char[][] griglia, int righe, int colonne){
-        for(int i = 0; i < righe; i++){
-            for(int j = 0; j < colonne; j++){
+    static void InizializzaScacchiera(char[][] griglia){
+        for(int i = 0; i < dimensione_griglia; i++){
+            for(int j = 0; j < dimensione_griglia; j++){
                 if(i == 3 && j == 3 || i == 4 && j == 4){
                     griglia[i][j] = 'X'; 
                 } else if(i == 3 && j == 4 || i == 4 && j == 3){
@@ -219,13 +213,13 @@ public class Othello {
         }
     }
     
-    static void StampaScacchiera(char[][] griglia, int righe, int colonne){
-        for(int i = 0; i < righe; i++){
+    static void StampaScacchiera(char[][] griglia){
+        for(int i = 0; i < dimensione_griglia; i++){
             System.out.println("+---+---+---+---+---+---+---+---+");
-            for(int j = 0; j < colonne; j++){
+            for(int j = 0; j < dimensione_griglia; j++){
                 if(j == 0){
                     System.out.print("| " + griglia[i][j]);
-                } else if(j == colonne - 1){
+                } else if(j == dimensione_griglia - 1){
                     System.out.print(" | " + griglia[i][j] + " |");
                 } else {
                     System.out.print(" | " + griglia[i][j]);
@@ -238,9 +232,9 @@ public class Othello {
 
     static void posizionaPedina(char[][] griglia, int riga, int colonna, char colore){
 		if(colore == 'X'){
-			griglia[riga][colonna] = 'O';
-		} else {
 			griglia[riga][colonna] = 'X';
+		} else {
+			griglia[riga][colonna] = 'O';
 		}
     }
 
@@ -253,7 +247,7 @@ public class Othello {
     static boolean controllaMossa(char[][] matrice, int riga, int colonna, char colore){
         //controllo validità della mossa da parte dell'utente
 		//controllo limiti delle coordinate della casella
-		if(riga < 0 || riga >= righe_griglia || colonna < 0 || colonna >= colonne_griglia){
+		if(riga < 0 || riga >= dimensione_griglia || colonna < 0 || colonna >= dimensione_griglia){
 			return false;
 		}
 		//controllo che la casella sia vuota
@@ -265,19 +259,20 @@ public class Othello {
 		char coloreAvversario = (colore == 'X') ? 'O' : 'X';
 		//array delle direzioni da controllare attorno a ogni pedina
 		int direzioneRiga[] = {-1,-1,-1,0,0,1,1,1};
-		int direzioneColonna[] = {-1,-1,-1,0,0,1,1,1};
+		int direzioneColonna[] = {-1,0,1,-1,1,-1,0,11};
 		
-		for(int i = 0; i < righe_griglia; i++){
+		for(int i = 0; i < dimensione_griglia; i++){
 			int r = riga + direzioneRiga[i];
 			int c = colonna + direzioneColonna[i];
 			int contaPedineAvversarie = 0;
 
-			while(r >= 0 && r < righe_griglia && c >= 0 && c < colonne_griglia && matrice[r][c] == coloreAvversario){
+			while(r >= 0 && r < dimensione_griglia && c >= 0 && c < dimensione_griglia && matrice[r][c] == coloreAvversario){
 				r += direzioneRiga[i];
 				c += direzioneColonna[i];
+				contaPedineAvversarie++; 
 			}
 
-			if(contaPedineAvversarie > 0 && r >= 0 && r < righe_griglia && c >= 0 && c < colonne_griglia){
+			if(contaPedineAvversarie > 0 && r >= 0 && r < dimensione_griglia && c >= 0 && c < dimensione_griglia){
 				return true;
 			}
 		}
