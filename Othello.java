@@ -1,7 +1,12 @@
 public class Othello {
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
 //metodi eric
-	static int dimensione_griglia = 8;  
+	static int dimensione_griglia = 8;
+
+	//le 8 direzioni attorno a una casella (usate da controllaMossa ed eseguiMossa)
+	static int[] direzioneRiga    = {-1, -1, -1,  0, 0,  1, 1, 1};
+	static int[] direzioneColonna = {-1,  0,  1, -1, 1, -1, 0, 1};
+
     public static void main(String[] args){
         avviaPartita();
     }
@@ -136,7 +141,7 @@ public class Othello {
 				do {
 					chiediMossa(mossa);
 				} while (!controllaMossa(griglia, mossa[0], mossa[1], coloreTurno));
-				posizionaPedina(griglia, mossa[0], mossa[1], coloreTurno);
+				eseguiMossa(griglia, mossa[0], mossa[1], coloreTurno);
 			}
 
 			if (turno.equals(giocatoreA)) {
@@ -238,8 +243,33 @@ public class Othello {
 		}
     }
 
-    static void eseguiMossa(){
-		
+    //piazza la pedina e gira tutte le pedine avversarie imprigionate
+    //da chiamare SOLO dopo aver verificato la mossa con controllaMossa
+    static void eseguiMossa(char[][] griglia, int riga, int colonna, char colore){
+		char coloreAvversario = (colore == 'X') ? 'O' : 'X';
+
+		//piazzo la pedina
+		griglia[riga][colonna] = colore;
+
+		for(int i = 0; i < direzioneRiga.length; i++){
+			int r = riga + direzioneRiga[i];
+			int c = colonna + direzioneColonna[i];
+			int contaPedineAvversarie = 0;
+
+			//cammino lungo la direzione finché trovo pedine avversarie
+			while(r >= 0 && r < dimensione_griglia && c >= 0 && c < dimensione_griglia && griglia[r][c] == coloreAvversario){
+				r += direzioneRiga[i];
+				c += direzioneColonna[i];
+				contaPedineAvversarie++;
+			}
+
+			//se la fila è chiusa da una mia pedina, giro quelle in mezzo
+			if(contaPedineAvversarie > 0 && r >= 0 && r < dimensione_griglia && c >= 0 && c < dimensione_griglia && griglia[r][c] == colore){
+				for(int k = 1; k <= contaPedineAvversarie; k++){
+					griglia[riga + k * direzioneRiga[i]][colonna + k * direzioneColonna[i]] = colore;
+				}
+			}
+		}
     }
 
 /*-------------------------------------------------------------------------------------------------------------------------------*/
@@ -257,11 +287,8 @@ public class Othello {
 		
 		//determino il colore dell'avversario
 		char coloreAvversario = (colore == 'X') ? 'O' : 'X';
-		//array delle direzioni da controllare attorno a ogni pedina
-		int direzioneRiga[] = {-1,-1,-1,0,0,1,1,1};
-		int direzioneColonna[] = {-1,0,1,-1,1,-1,0,11};
 		
-		for(int i = 0; i < dimensione_griglia; i++){
+		for(int i = 0; i < direzioneRiga.length; i++){
 			int r = riga + direzioneRiga[i];
 			int c = colonna + direzioneColonna[i];
 			int contaPedineAvversarie = 0;
@@ -272,7 +299,9 @@ public class Othello {
 				contaPedineAvversarie++; 
 			}
 
-			if(contaPedineAvversarie > 0 && r >= 0 && r < dimensione_griglia && c >= 0 && c < dimensione_griglia){
+			//valida solo se ho scavalcato almeno una pedina avversaria
+			//e subito dopo c'è una pedina del MIO colore (la fila è "chiusa")
+			if(contaPedineAvversarie > 0 && r >= 0 && r < dimensione_griglia && c >= 0 && c < dimensione_griglia && matrice[r][c] == colore){
 				return true;
 			}
 		}
