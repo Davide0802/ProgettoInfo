@@ -161,17 +161,17 @@ public class Othello {
 		int righe, colonne;
 
 		do {
-			System.out.print("Inserisci un valore per la riga da 0 a 7: ");
+			System.out.print("Inserisci un valore per la riga da 1 a 8: ");
 			righe = Leggi.unInt();
-		} while (righe < 0 || righe > dimensione_griglia-1);
+		} while (righe < 0 || righe > dimensione_griglia);
 
 		do {
-			System.out.print("Inserisci un valore per la colonna da 0 a 7: ");
+			System.out.print("Inserisci un valore per la colonna da 1 a 8: ");
 			colonne = Leggi.unInt();
-		} while (colonne < 0 || colonne > dimensione_griglia-1);
+		} while (colonne < 0 || colonne > dimensione_griglia);
 
-		mossa[0] = righe;
-		mossa[1] = colonne;
+		mossa[0] = righe - 1;
+		mossa[1] = colonne - 1;
     }
 
     static void determinaVincitore(char[][] griglia){
@@ -219,11 +219,18 @@ public class Othello {
     }
     
     static void StampaScacchiera(char[][] griglia){
+		for(int i = 0; i < 	dimensione_griglia; i++){
+			if(i == 0){
+				System.out.print("   ");
+			}
+			System.out.print("  "+ (i+1)+ " ");
+		}
+		System.out.println("");
         for(int i = 0; i < dimensione_griglia; i++){
-            System.out.println("+---+---+---+---+---+---+---+---+");
+            System.out.println("   +---+---+---+---+---+---+---+---+");
             for(int j = 0; j < dimensione_griglia; j++){
                 if(j == 0){
-                    System.out.print("| " + griglia[i][j]);
+                    System.out.print(" " + (i+1) + " | " + griglia[i][j]);
                 } else if(j == dimensione_griglia - 1){
                     System.out.print(" | " + griglia[i][j] + " |");
                 } else {
@@ -232,7 +239,7 @@ public class Othello {
             }
             System.out.println();
         }
-        System.out.println("+---+---+---+---+---+---+---+---+");
+        System.out.println("   +---+---+---+---+---+---+---+---+");
     }
 
     static void posizionaPedina(char[][] griglia, int riga, int colonna, char colore){
