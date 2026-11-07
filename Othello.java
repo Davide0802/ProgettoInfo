@@ -333,5 +333,5 @@ public class Othello {
 		int[] mosse_valide = new int[100];
 		
     }
-		*/
+	*/
 }
