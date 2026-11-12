@@ -3,7 +3,6 @@ import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -17,12 +16,11 @@ import javax.swing.*;
  * Pedine:  'X' = bianca (Giocatore A, inizia)   'O' = nera (Giocatore B)
  * Celle:   ' ' = vuota
  *
- * Le immagini si leggono dalla stessa cartella di questo file .java:
- * griglia_coordinate.png e i 9 fotogrammi Screenshot ... Recovered1..9.png.
- * Se un file manca, il programma disegna una moneta provvisoria, cosi'
- * si avvia comunque.
+ * Tutto il programma e' in questa sola classe (niente classi interne, niente
+ * classi anonime): la compilazione produce un solo OthelloGUI.class.
+ * Le immagini si leggono dalla cartella del progetto.
  */
-public class OthelloGUI {
+public class OthelloGUI extends JPanel implements ActionListener, MouseListener {
 
 	/* ===================== COSTANTI ===================== */
 
@@ -30,21 +28,6 @@ public class OthelloGUI {
 	static final int LATO_IMMAGINE = 1216;
 	static final int MARGINE_IMMAGINE = 80;   // margine prima della griglia verde
 	static final int CELLA_IMMAGINE = 132;    // lato di una cella nell'immagine
-
-	static final String NOME_SFONDO = "griglia_coordinate.png";
-
-	// nomi originali dei 9 fotogrammi della moneta, nella stessa cartella del .java
-	static final String[] NOMI_FOTOGRAMMI = {
-			"Screenshot 2026-10-23 113752-Recovered1.png",
-			"Screenshot 2026-10-23 113752-Recovered2.png",
-			"Screenshot 2026-10-23 113752-Recovered3.png",
-			"Screenshot 2026-10-23 113752-Recovered4.png",
-			"Screenshot 2026-10-23 113752-Recovered5.png",
-			"Screenshot 2026-10-23 113752-Recovered6.png",
-			"Screenshot 2026-10-23 113752-Recovered7.png",
-			"Screenshot 2026-10-23 113752-Recovered8.png",
-			"Screenshot 2026-10-23 113752-Recovered9.png"
-	};
 
 	// se lo metti a false le mosse valide non vengono evidenziate
 	static final boolean MOSTRA_MOSSE_VALIDE = true;
@@ -59,10 +42,26 @@ public class OthelloGUI {
 	static final char BIANCO = 'X';
 	static final char NERO = 'O';
 
+	// nomi dei file immagine, nella stessa cartella di questo file .java
+	static final String NOME_SFONDO = "griglia_coordinate.png";
+
+	// nomi originali dei 9 fotogrammi della moneta
+	static final String[] NOMI_FOTOGRAMMI = {
+			"Screenshot 2026-10-23 113752-Recovered1.png",
+			"Screenshot 2026-10-23 113752-Recovered2.png",
+			"Screenshot 2026-10-23 113752-Recovered3.png",
+			"Screenshot 2026-10-23 113752-Recovered4.png",
+			"Screenshot 2026-10-23 113752-Recovered5.png",
+			"Screenshot 2026-10-23 113752-Recovered6.png",
+			"Screenshot 2026-10-23 113752-Recovered7.png",
+			"Screenshot 2026-10-23 113752-Recovered8.png",
+			"Screenshot 2026-10-23 113752-Recovered9.png"
+	};
+
 	/* ===================== IMMAGINI ===================== */
 
 	BufferedImage sfondo;             // griglia_coordinate.png
-	BufferedImage[] fotogrammi;       // fotogrammi[0] = F1.png ... fotogrammi[8] = F9.png
+	BufferedImage[] fotogrammi;       // fotogrammi[0] = F1 (bianca) ... fotogrammi[8] = F9 (nera)
 
 	/* ===================== STATO DELLA PARTITA ===================== */
 
@@ -72,8 +71,15 @@ public class OthelloGUI {
 	boolean controComputer = false;   // true nella modalita' Giocatore vs Computer
 	boolean animazioneInCorso = false;
 
-	// pedine che stanno girando in questo momento
-	ArrayList<PedinaAnimata> pedineInAnimazione = new ArrayList<PedinaAnimata>();
+	/*
+	 * Pedine che stanno girando, salvate in 4 array paralleli per non usare
+	 * altre classi. animPassi va da 0 a 8 (fotogramma corrente).
+	 */
+	int[] animRighe = new int[64];
+	int[] animColonne = new int[64];
+	int[] animVersi = new int[64];    // 1 = verso nero (F1->F9), 0 = verso bianco (F9->F1)
+	int[] animPassi = new int[64];
+	int animQuante = 0;
 
 	// timer per l'animazione e per la mossa del computer
 	Timer timerAnimazione;
@@ -82,7 +88,8 @@ public class OthelloGUI {
 	/* ===================== COMPONENTI DELLA FINESTRA ===================== */
 
 	JFrame finestra;
-	PannelloScacchiera pannelloScacchiera;
+	JPanel pannelloMenu;
+	JPanel pannelloGioco;
 	JLabel etichettaTurno;
 	JLabel etichettaPunteggio;
 
@@ -92,141 +99,22 @@ public class OthelloGUI {
 	int scacchieraLato = 0;
 
 	/* ================================================================
-	 * CLASSE INTERNA: una pedina che sta facendo l'animazione del giro
-	 * ================================================================ */
-	static class PedinaAnimata {
-		int riga;
-		int colonna;
-		boolean versoNero;   // true: da bianco a nero (F1 -> F9)
-		int passo;           // 0..8, fotogramma corrente
-
-		PedinaAnimata(int riga, int colonna, boolean versoNero) {
-			this.riga = riga;
-			this.colonna = colonna;
-			this.versoNero = versoNero;
-			this.passo = 0;
-		}
-
-		// restituisce l'indice del fotogramma da disegnare (0 = F1, 8 = F9)
-		int indiceFotogramma() {
-			if (versoNero) {
-				return passo;        // F1 -> F9
-			} else {
-				return 8 - passo;    // F9 -> F1
-			}
-		}
-	}
-
-	/* ================================================================
-	 * PANNELLO CHE DISEGNA LA SCACCHIERA
-	 * ================================================================ */
-	class PannelloScacchiera extends JPanel {
-
-		PannelloScacchiera() {
-			setBackground(new Color(232, 232, 232));
-
-			// ascolto il click del mouse sulla scacchiera
-			addMouseListener(new MouseAdapter() {
-				public void mousePressed(MouseEvent e) {
-					gestisciClick(e.getX(), e.getY());
-				}
-			});
-		}
-
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-
-			Graphics2D g2 = (Graphics2D) g;
-
-			// interpolazione NEAREST_NEIGHBOR: la pixel art resta nitida
-			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-					RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
-			calcolaGeometria();
-
-			// 1) sfondo (griglia_coordinate.png ridimensionata mantenendo le proporzioni)
-			if (sfondo != null) {
-				g2.drawImage(sfondo, scacchieraX, scacchieraY, scacchieraLato, scacchieraLato, null);
-			}
-
-			// 2) evidenzio le mosse valide del giocatore di turno
-			if (MOSTRA_MOSSE_VALIDE && !animazioneInCorso) {
-				disegnaMosseValide(g2);
-			}
-
-			// 3) disegno le pedine
-			for (int riga = 0; riga < Othello.dimensione_griglia; riga++) {
-				for (int colonna = 0; colonna < Othello.dimensione_griglia; colonna++) {
-					char colore = griglia[riga][colonna];
-					if (colore == ' ') {
-						continue;
-					}
-
-					BufferedImage immagine;
-
-					PedinaAnimata animata = trovaPedinaAnimata(riga, colonna);
-					if (animata != null) {
-						// pedina che sta girando: uso il fotogramma corrente
-						immagine = fotogrammi[animata.indiceFotogramma()];
-					} else if (colore == BIANCO) {
-						immagine = fotogrammi[0];    // F1
-					} else {
-						immagine = fotogrammi[8];    // F9
-					}
-
-					disegnaPedina(g2, immagine, riga, colonna);
-				}
-			}
-		}
-
-		// disegna una pedina al centro della cella indicata
-		void disegnaPedina(Graphics2D g2, BufferedImage immagine, int riga, int colonna) {
-			double fattore = scacchieraLato / (double) LATO_IMMAGINE;
-
-			int x = scacchieraX + (int) Math.round((MARGINE_IMMAGINE + colonna * CELLA_IMMAGINE) * fattore);
-			int y = scacchieraY + (int) Math.round((MARGINE_IMMAGINE + riga * CELLA_IMMAGINE) * fattore);
-			int latoCella = (int) Math.round(CELLA_IMMAGINE * fattore);
-
-			g2.drawImage(immagine, x, y, latoCella, latoCella, null);
-		}
-
-		// disegna un piccolo cerchio semitrasparente su ogni mossa valida
-		void disegnaMosseValide(Graphics2D g2) {
-			double fattore = scacchieraLato / (double) LATO_IMMAGINE;
-			char coloreTurno = coloreDiTurno();
-
-			for (int riga = 0; riga < Othello.dimensione_griglia; riga++) {
-				for (int colonna = 0; colonna < Othello.dimensione_griglia; colonna++) {
-
-					if (!Othello.controllaMossa(griglia, riga, colonna, coloreTurno)) {
-						continue;
-					}
-
-					double centroX = scacchieraX
-							+ (MARGINE_IMMAGINE + (colonna + 0.5) * CELLA_IMMAGINE) * fattore;
-					double centroY = scacchieraY
-							+ (MARGINE_IMMAGINE + (riga + 0.5) * CELLA_IMMAGINE) * fattore;
-					double raggio = Math.max(3.0, CELLA_IMMAGINE * fattore * 0.12);
-
-					g2.setColor(new Color(20, 20, 20, 110));
-					g2.fill(new Ellipse2D.Double(centroX - raggio, centroY - raggio,
-							raggio * 2, raggio * 2));
-				}
-			}
-		}
-	}
-
-	/* ================================================================
 	 * COSTRUTTORE
 	 * ================================================================ */
 	public OthelloGUI() {
 		caricaImmagini();
+
+		setBackground(new Color(232, 232, 232));
+		addMouseListener(this);
 
 		finestra = new JFrame("Othello");
 		finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		finestra.setSize(860, 930);
 		finestra.setMinimumSize(new Dimension(620, 700));
 		finestra.setLocationRelativeTo(null);
+
+		pannelloMenu = creaPannelloMenu();
+		pannelloGioco = creaPannelloGioco();
 
 		mostraMenu();
 		finestra.setVisible(true);
@@ -277,7 +165,7 @@ public class OthelloGUI {
 		}
 
 		if (mancanti) {
-			System.err.println("ATTENZIONE: mancano alcune immagini F1..F9, uso monete provvisorie.");
+			System.err.println("ATTENZIONE: mancano alcune immagini, uso monete provvisorie.");
 		}
 	}
 
@@ -307,7 +195,7 @@ public class OthelloGUI {
 		return immagine;
 	}
 
-	// moneta provvisoria, usata solo se mancano F1..F9
+	// moneta provvisoria, usata solo se mancano i fotogrammi
 	BufferedImage creaMonetaFinta(int indice) {
 		BufferedImage immagine = new BufferedImage(CELLA_IMMAGINE, CELLA_IMMAGINE,
 				BufferedImage.TYPE_INT_ARGB);
@@ -338,14 +226,11 @@ public class OthelloGUI {
 	/* ================================================================
 	 * MENU INIZIALE
 	 * ================================================================ */
-	void mostraMenu() {
-		fermaTimer();
-		pedineInAnimazione.clear();
-
-		JPanel pannelloMenu = new JPanel();
-		pannelloMenu.setLayout(new BoxLayout(pannelloMenu, BoxLayout.Y_AXIS));
-		pannelloMenu.setBackground(new Color(238, 244, 238));
-		pannelloMenu.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+	JPanel creaPannelloMenu() {
+		JPanel pannello = new JPanel();
+		pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
+		pannello.setBackground(new Color(238, 244, 238));
+		pannello.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
 		JLabel titolo = new JLabel("OTHELLO");
 		titolo.setFont(new Font("SansSerif", Font.BOLD, 60));
@@ -355,67 +240,49 @@ public class OthelloGUI {
 		sottotitolo.setFont(new Font("SansSerif", Font.PLAIN, 18));
 		sottotitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		JButton bottoneGiocatori = creaBottoneMenu("Giocatore vs Giocatore",
-				new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						avviaGioco(false);
-					}
-				});
+		pannello.add(Box.createVerticalGlue());
+		pannello.add(titolo);
+		pannello.add(Box.createVerticalStrut(8));
+		pannello.add(sottotitolo);
+		pannello.add(Box.createVerticalStrut(40));
+		pannello.add(creaBottoneMenu("Giocatore vs Giocatore", "giocatori"));
+		pannello.add(Box.createVerticalStrut(14));
+		pannello.add(creaBottoneMenu("Giocatore vs Computer", "computer"));
+		pannello.add(Box.createVerticalStrut(14));
+		pannello.add(creaBottoneMenu("Regole", "regole"));
+		pannello.add(Box.createVerticalStrut(14));
+		pannello.add(creaBottoneMenu("Esci", "esci"));
+		pannello.add(Box.createVerticalGlue());
 
-		JButton bottoneComputer = creaBottoneMenu("Giocatore vs Computer",
-				new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						avviaGioco(true);
-					}
-				});
-
-		JButton bottoneRegole = creaBottoneMenu("Regole",
-				new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						mostraRegoleDialog();
-					}
-				});
-
-		JButton bottoneEsci = creaBottoneMenu("Esci",
-				new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.exit(0);
-					}
-				});
-
-		pannelloMenu.add(Box.createVerticalGlue());
-		pannelloMenu.add(titolo);
-		pannelloMenu.add(Box.createVerticalStrut(8));
-		pannelloMenu.add(sottotitolo);
-		pannelloMenu.add(Box.createVerticalStrut(40));
-		pannelloMenu.add(bottoneGiocatori);
-		pannelloMenu.add(Box.createVerticalStrut(14));
-		pannelloMenu.add(bottoneComputer);
-		pannelloMenu.add(Box.createVerticalStrut(14));
-		pannelloMenu.add(bottoneRegole);
-		pannelloMenu.add(Box.createVerticalStrut(14));
-		pannelloMenu.add(bottoneEsci);
-		pannelloMenu.add(Box.createVerticalGlue());
-
-		cambiaPannello(pannelloMenu);
+		return pannello;
 	}
 
-	JButton creaBottoneMenu(String testo, ActionListener azione) {
+	JButton creaBottoneMenu(String testo, String comando) {
 		JButton bottone = new JButton(testo);
 		bottone.setFont(new Font("SansSerif", Font.BOLD, 20));
 		bottone.setAlignmentX(Component.CENTER_ALIGNMENT);
 		bottone.setMaximumSize(new Dimension(340, 52));
 		bottone.setPreferredSize(new Dimension(340, 52));
-		bottone.addActionListener(azione);
+		bottone.setActionCommand(comando);
+		bottone.addActionListener(this);
 		return bottone;
 	}
 
-	// sostituisce il contenuto della finestra con un nuovo pannello
-	void cambiaPannello(JPanel pannello) {
-		finestra.getContentPane().removeAll();
-		finestra.getContentPane().add(pannello);
-		finestra.getContentPane().revalidate();
-		finestra.getContentPane().repaint();
+	// pannello con la barra di stato in alto e la scacchiera (this) al centro
+	JPanel creaPannelloGioco() {
+		JPanel pannello = new JPanel(new BorderLayout());
+		pannello.add(creaBarraStato(), BorderLayout.NORTH);
+		pannello.add(this, BorderLayout.CENTER);
+		return pannello;
+	}
+
+	void mostraMenu() {
+		fermaTimer();
+		animQuante = 0;
+
+		finestra.setContentPane(pannelloMenu);
+		finestra.revalidate();
+		finestra.repaint();
 	}
 
 	/* ================================================================
@@ -470,22 +337,17 @@ public class OthelloGUI {
 	 * ================================================================ */
 	void avviaGioco(boolean modalitaComputer) {
 		fermaTimer();
-		pedineInAnimazione.clear();
+		animQuante = 0;
 
 		controComputer = modalitaComputer;
 		turnoBianco = true;              // inizia sempre il bianco (X)
-		animazioneInCorso = false;
 
 		Othello.InizializzaScacchiera(griglia);
 
-		pannelloScacchiera = new PannelloScacchiera();
-
-		JPanel pannelloGioco = new JPanel(new BorderLayout());
-		pannelloGioco.add(creaBarraStato(), BorderLayout.NORTH);
-		pannelloGioco.add(pannelloScacchiera, BorderLayout.CENTER);
-
-		cambiaPannello(pannelloGioco);
+		finestra.setContentPane(pannelloGioco);
+		finestra.revalidate();
 		aggiornaBarraStato();
+		repaint();
 	}
 
 	/* ================================================================
@@ -501,11 +363,8 @@ public class OthelloGUI {
 
 		JButton bottoneMenu = new JButton("Menu");
 		bottoneMenu.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		bottoneMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mostraMenu();
-			}
-		});
+		bottoneMenu.setActionCommand("menu");
+		bottoneMenu.addActionListener(this);
 
 		JPanel barra = new JPanel(new BorderLayout(10, 0));
 		barra.setBackground(new Color(235, 241, 235));
@@ -545,8 +404,111 @@ public class OthelloGUI {
 	}
 
 	/* ================================================================
+	 * DISEGNO DELLA SCACCHIERA (questo pannello e' la scacchiera)
+	 * ================================================================ */
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+
+		Graphics2D g2 = (Graphics2D) g;
+
+		// interpolazione NEAREST_NEIGHBOR: la pixel art resta nitida
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+		calcolaGeometria();
+
+		// 1) sfondo (griglia_coordinate.png ridimensionata mantenendo le proporzioni)
+		if (sfondo != null) {
+			g2.drawImage(sfondo, scacchieraX, scacchieraY, scacchieraLato, scacchieraLato, null);
+		}
+
+		// 2) evidenzio le mosse valide del giocatore di turno
+		if (MOSTRA_MOSSE_VALIDE && !animazioneInCorso) {
+			disegnaMosseValide(g2);
+		}
+
+		// 3) disegno le pedine
+		for (int riga = 0; riga < Othello.dimensione_griglia; riga++) {
+			for (int colonna = 0; colonna < Othello.dimensione_griglia; colonna++) {
+				char colore = griglia[riga][colonna];
+				if (colore == ' ') {
+					continue;
+				}
+
+				BufferedImage immagine;
+
+				int indiceAnimata = trovaPedinaAnimata(riga, colonna);
+				if (indiceAnimata >= 0) {
+					// pedina che sta girando: uso il fotogramma corrente
+					immagine = fotogrammi[indiceFotogramma(indiceAnimata)];
+				} else if (colore == BIANCO) {
+					immagine = fotogrammi[0];    // F1
+				} else {
+					immagine = fotogrammi[8];    // F9
+				}
+
+				disegnaPedina(g2, immagine, riga, colonna);
+			}
+		}
+	}
+
+	// disegna una pedina al centro della cella indicata
+	void disegnaPedina(Graphics2D g2, BufferedImage immagine, int riga, int colonna) {
+		double fattore = scacchieraLato / (double) LATO_IMMAGINE;
+
+		int x = scacchieraX + (int) Math.round((MARGINE_IMMAGINE + colonna * CELLA_IMMAGINE) * fattore);
+		int y = scacchieraY + (int) Math.round((MARGINE_IMMAGINE + riga * CELLA_IMMAGINE) * fattore);
+		int latoCella = (int) Math.round(CELLA_IMMAGINE * fattore);
+
+		g2.drawImage(immagine, x, y, latoCella, latoCella, null);
+	}
+
+	// disegna un piccolo cerchio semitrasparente su ogni mossa valida
+	void disegnaMosseValide(Graphics2D g2) {
+		double fattore = scacchieraLato / (double) LATO_IMMAGINE;
+		char coloreTurno = coloreDiTurno();
+
+		for (int riga = 0; riga < Othello.dimensione_griglia; riga++) {
+			for (int colonna = 0; colonna < Othello.dimensione_griglia; colonna++) {
+
+				if (!Othello.controllaMossa(griglia, riga, colonna, coloreTurno)) {
+					continue;
+				}
+
+				double centroX = scacchieraX
+						+ (MARGINE_IMMAGINE + (colonna + 0.5) * CELLA_IMMAGINE) * fattore;
+				double centroY = scacchieraY
+						+ (MARGINE_IMMAGINE + (riga + 0.5) * CELLA_IMMAGINE) * fattore;
+				double raggio = Math.max(3.0, CELLA_IMMAGINE * fattore * 0.12);
+
+				g2.setColor(new Color(20, 20, 20, 110));
+				g2.fill(new Ellipse2D.Double(centroX - raggio, centroY - raggio,
+						raggio * 2, raggio * 2));
+			}
+		}
+	}
+
+	// calcola posizione e lato della scacchiera dentro a questo pannello
+	void calcolaGeometria() {
+		int lato = Math.min(getWidth(), getHeight());
+
+		scacchieraLato = lato;
+		scacchieraX = (getWidth() - lato) / 2;
+		scacchieraY = (getHeight() - lato) / 2;
+	}
+
+	/* ================================================================
 	 * CLICK DEL MOUSE
 	 * ================================================================ */
+	public void mousePressed(MouseEvent e) {
+		gestisciClick(e.getX(), e.getY());
+	}
+
+	public void mouseClicked(MouseEvent e) { }
+	public void mouseReleased(MouseEvent e) { }
+	public void mouseEntered(MouseEvent e) { }
+	public void mouseExited(MouseEvent e) { }
+
 	void gestisciClick(int x, int y) {
 		// durante l'animazione i click vengono ignorati
 		if (animazioneInCorso) {
@@ -600,25 +562,21 @@ public class OthelloGUI {
 
 		preparaAnimazione(grigliaPrima, colore);
 		aggiornaBarraStato();
-		pannelloScacchiera.repaint();
+		repaint();
 
-		if (pedineInAnimazione.isEmpty()) {
+		if (animQuante == 0) {
 			fineTurno();
 			return;
 		}
 
 		animazioneInCorso = true;
-		timerAnimazione = new Timer(RITARDO_ANIMAZIONE, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				avanzaAnimazione();
-			}
-		});
+		timerAnimazione = new Timer(RITARDO_ANIMAZIONE, this);
 		timerAnimazione.start();
 	}
 
 	// confronta la griglia prima e dopo la mossa e trova le pedine girate
 	void preparaAnimazione(char[][] grigliaPrima, char colore) {
-		pedineInAnimazione.clear();
+		animQuante = 0;
 
 		for (int riga = 0; riga < Othello.dimensione_griglia; riga++) {
 			for (int colonna = 0; colonna < Othello.dimensione_griglia; colonna++) {
@@ -628,7 +586,17 @@ public class OthelloGUI {
 
 				// pedina che e' cambiata di colore (la pedina appena messa era vuota)
 				if (prima != ' ' && prima != dopo) {
-					pedineInAnimazione.add(new PedinaAnimata(riga, colonna, colore == NERO));
+					animRighe[animQuante] = riga;
+					animColonne[animQuante] = colonna;
+
+					if (colore == NERO) {
+						animVersi[animQuante] = 1;   // F1 -> F9
+					} else {
+						animVersi[animQuante] = 0;   // F9 -> F1
+					}
+
+					animPassi[animQuante] = 0;
+					animQuante++;
 				}
 			}
 		}
@@ -636,18 +604,22 @@ public class OthelloGUI {
 
 	// fa avanzare di un fotogramma tutte le pedine in animazione
 	void avanzaAnimazione() {
-		for (int i = pedineInAnimazione.size() - 1; i >= 0; i--) {
-			PedinaAnimata pedina = pedineInAnimazione.get(i);
-			pedina.passo++;
+		for (int i = animQuante - 1; i >= 0; i--) {
+			animPassi[i]++;
 
-			if (pedina.passo > 8) {
-				pedineInAnimazione.remove(i);
+			if (animPassi[i] > 8) {
+				// tolgo questa pedina: copio l'ultima al suo posto
+				animQuante--;
+				animRighe[i] = animRighe[animQuante];
+				animColonne[i] = animColonne[animQuante];
+				animVersi[i] = animVersi[animQuante];
+				animPassi[i] = animPassi[animQuante];
 			}
 		}
 
-		pannelloScacchiera.repaint();
+		repaint();
 
-		if (pedineInAnimazione.isEmpty()) {
+		if (animQuante == 0) {
 			timerAnimazione.stop();
 			timerAnimazione = null;
 			animazioneInCorso = false;
@@ -655,14 +627,22 @@ public class OthelloGUI {
 		}
 	}
 
-	PedinaAnimata trovaPedinaAnimata(int riga, int colonna) {
-		for (int i = 0; i < pedineInAnimazione.size(); i++) {
-			PedinaAnimata pedina = pedineInAnimazione.get(i);
-			if (pedina.riga == riga && pedina.colonna == colonna) {
-				return pedina;
+	// restituisce la posizione nella lista delle pedine in animazione, oppure -1
+	int trovaPedinaAnimata(int riga, int colonna) {
+		for (int i = 0; i < animQuante; i++) {
+			if (animRighe[i] == riga && animColonne[i] == colonna) {
+				return i;
 			}
 		}
-		return null;
+		return -1;
+	}
+
+	// fotogramma da disegnare: 0 = F1, 8 = F9
+	int indiceFotogramma(int indicePedina) {
+		if (animVersi[indicePedina] == 1) {
+			return animPassi[indicePedina];        // F1 -> F9
+		}
+		return 8 - animPassi[indicePedina];        // F9 -> F1
 	}
 
 	/* ================================================================
@@ -758,13 +738,7 @@ public class OthelloGUI {
 	 * COMPUTER
 	 * ================================================================ */
 	void avviaMossaComputer() {
-		timerComputer = new Timer(ATTESA_COMPUTER, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				timerComputer.stop();
-				timerComputer = null;
-				eseguiMossaComputer();
-			}
-		});
+		timerComputer = new Timer(ATTESA_COMPUTER, this);
 		timerComputer.setRepeats(false);
 		timerComputer.start();
 	}
@@ -808,6 +782,39 @@ public class OthelloGUI {
 	}
 
 	/* ================================================================
+	 * GESTIONE DEI PULSANTI E DEI TIMER
+	 * ================================================================ */
+	public void actionPerformed(ActionEvent e) {
+		// eventi dei timer
+		if (e.getSource() == timerAnimazione) {
+			avanzaAnimazione();
+			return;
+		}
+
+		if (e.getSource() == timerComputer) {
+			timerComputer.stop();
+			timerComputer = null;
+			eseguiMossaComputer();
+			return;
+		}
+
+		// eventi dei pulsanti
+		String comando = e.getActionCommand();
+
+		if ("giocatori".equals(comando)) {
+			avviaGioco(false);
+		} else if ("computer".equals(comando)) {
+			avviaGioco(true);
+		} else if ("regole".equals(comando)) {
+			mostraRegoleDialog();
+		} else if ("menu".equals(comando)) {
+			mostraMenu();
+		} else if ("esci".equals(comando)) {
+			System.exit(0);
+		}
+	}
+
+	/* ================================================================
 	 * METODI DI SUPPORTO
 	 * ================================================================ */
 	char[][] copiaGriglia(char[][] originale) {
@@ -834,15 +841,6 @@ public class OthelloGUI {
 		return contatore;
 	}
 
-	// calcola posizione e lato della scacchiera dentro al pannello
-	void calcolaGeometria() {
-		int lato = Math.min(pannelloScacchiera.getWidth(), pannelloScacchiera.getHeight());
-
-		scacchieraLato = lato;
-		scacchieraX = (pannelloScacchiera.getWidth() - lato) / 2;
-		scacchieraY = (pannelloScacchiera.getHeight() - lato) / 2;
-	}
-
 	void fermaTimer() {
 		if (timerAnimazione != null) {
 			timerAnimazione.stop();
@@ -857,12 +855,10 @@ public class OthelloGUI {
 
 	/* ================================================================
 	 * MAIN
+	 *
+	 * Creo la finestra direttamente nel main per non usare classi anonime.
 	 * ================================================================ */
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new OthelloGUI();
-			}
-		});
+		new OthelloGUI();
 	}
 }
