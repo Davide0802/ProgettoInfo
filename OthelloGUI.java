@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 /*
  * OthelloGUI.java
@@ -43,24 +46,25 @@ public class OthelloGUI extends JPanel implements ActionListener, MouseListener 
 	static final char NERO = 'O';
 
 	// nomi dei file immagine, nella stessa cartella di questo file .java
-	static final String NOME_SFONDO = "griglia_coordinate.png";
+	//static final String NOME_SFONDO = "griglia_coordinate.png";
+	URL urlSfondo = getClass().getResource("/Immagini/Sfondo/griglia_coordinate.png");
 
 	// nomi originali dei 9 fotogrammi della moneta
 	static final String[] NOMI_FOTOGRAMMI = {
-			"Screenshot 2026-10-23 113752-Recovered1.png",
-			"Screenshot 2026-10-23 113752-Recovered2.png",
-			"Screenshot 2026-10-23 113752-Recovered3.png",
-			"Screenshot 2026-10-23 113752-Recovered4.png",
-			"Screenshot 2026-10-23 113752-Recovered5.png",
-			"Screenshot 2026-10-23 113752-Recovered6.png",
-			"Screenshot 2026-10-23 113752-Recovered7.png",
-			"Screenshot 2026-10-23 113752-Recovered8.png",
-			"Screenshot 2026-10-23 113752-Recovered9.png"
+			"F1.png",
+			"F2.png",
+			"F3.png",
+			"F4.png",
+			"F5.png",
+			"F6.png",
+			"F7.png",
+			"F8.png",
+			"F9.png"
 	};
 
 	/* ===================== IMMAGINI ===================== */
 
-	BufferedImage sfondo;             // griglia_coordinate.png
+	BufferedImage sfondo = null;             // griglia_coordinate.png
 	BufferedImage[] fotogrammi;       // fotogrammi[0] = F1 (bianca) ... fotogrammi[8] = F9 (nera)
 
 	/* ===================== STATO DELLA PARTITA ===================== */
@@ -125,50 +129,40 @@ public class OthelloGUI extends JPanel implements ActionListener, MouseListener 
 	 * ================================================================ */
 
 	// carica un'immagine cercandola nella cartella del progetto
-	BufferedImage caricaImmagine(String nomeFile) {
-		File file = new File(nomeFile);
-		if (!file.exists()) {
-			return null;
-		}
-
-		try {
-			return ImageIO.read(file);
-		} catch (Exception e) {
-			System.err.println("Errore nella lettura di " + file.getPath() + ": " + e.getMessage());
-			return null;
-		}
+	BufferedImage caricaRisorsa(String percorso) {
+    	// percorso assoluto nel classpath: "/Immagini/Pedine/F1.png"
+    	try (InputStream in = getClass().getResourceAsStream(percorso)) {
+        	if (in == null) {
+            	return null;               // risorsa assente: decide il chiamante
+        	}
+        	return ImageIO.read(in);
+    	} catch (IOException e) {
+        	System.err.println("Errore leggendo " + percorso + ": " + e.getMessage());
+        	return null;
+    	}
 	}
 
 	void caricaImmagini() {
-		sfondo = caricaImmagine(NOME_SFONDO);
+		sfondo = caricaRisorsa("/Immagini/Sfondo/griglia_coordinate.png");
+
 		if (sfondo == null) {
-			System.err.println("ATTENZIONE: griglia_coordinate.png non trovata, uso uno sfondo provvisorio.");
-			sfondo = creaSfondoFinto();
+    		System.err.println("ATTENZIONE: griglia_coordinate.png non trovata, uso uno sfondo provvisorio.");
+    		sfondo = creaSfondoFinto();
 		}
 
 		fotogrammi = new BufferedImage[9];
-		boolean mancanti = false;
-
 		for (int i = 0; i < 9; i++) {
-			// prima provo il nome "bello" F1.png ... F9.png
-			fotogrammi[i] = caricaImmagine("F" + (i + 1) + ".png");
-
-			// se non c'e', uso il nome originale dello screenshot
-			if (fotogrammi[i] == null) {
-				fotogrammi[i] = caricaImmagine(NOMI_FOTOGRAMMI[i]);
-			}
-
-			if (fotogrammi[i] == null) {
-				mancanti = true;
-				fotogrammi[i] = creaMonetaFinta(i);
-			}
+    		fotogrammi[i] = caricaRisorsa("/Immagini/Pedine/F" + (i + 1) + ".png");
+    		if (fotogrammi[i] == null) {
+        		fotogrammi[i] = creaMonetaFinta(i);   // fallback già presente
+    		}
 		}
-
+	/*
 		if (mancanti) {
 			System.err.println("ATTENZIONE: mancano alcune immagini, uso monete provvisorie.");
 		}
+	*/
 	}
-
 	// sfondo provvisorio, usato solo se griglia_coordinate.png non c'e'
 	BufferedImage creaSfondoFinto() {
 		BufferedImage immagine = new BufferedImage(LATO_IMMAGINE, LATO_IMMAGINE,
